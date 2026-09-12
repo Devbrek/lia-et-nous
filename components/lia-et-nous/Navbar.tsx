@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Container from "@/components/lia-et-nous/Container";
 
 type NavLink = {
@@ -45,12 +45,23 @@ export function handleScrollTo(
   });
 }
 
+function subscribeReducedMotion(callback: () => void) {
+  const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+function getReducedMotionServerSnapshot() {
+  return false;
+}
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-  return reduced;
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
 }
 
 function useScrolledPast(threshold: number) {
@@ -223,11 +234,9 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const autoOpened = useRef(false);
 
-  // Ouverture automatique une seule fois, au premier franchissement du
-  // seuil de scroll. Une fois ouverte, elle ne se referme jamais toute
-  // seule (ni en remontant, ni en cliquant un lien) : seul le bouton peut
-  // la fermer, et cette fermeture est alors définitive jusqu'à ce que
-  // l'utilisateur la rouvre lui-même.
+  // Menu mobile en dropdown (nav horizontale du Hero, en dessous de md:)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   useEffect(() => {
     if (scrolled && !autoOpened.current) {
       setMenuOpen(true);
@@ -245,11 +254,11 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Nav horizontale : visible en haut du Hero. Fond qui se voile
-          légèrement dès qu'on scrolle un peu (avant même le seuil de
-          bascule) pour garder le texte lisible sur les particules du
-          canvas, soulignement animé au survol, point d'activité sous le
-          lien de la section actuellement visible. */}
+      {/* Nav horizontale : visible en haut du Hero. Sur mobile (< md:), les
+          liens sont remplacés par un bouton hamburger qui ouvre un menu
+          déroulant plein-largeur, pour ne jamais wrapper ni chevaucher le
+          contenu en dessous. À partir de md:, la liste de liens s'affiche
+          normalement comme avant. */}
       <div
         className={`fixed top-0 left-0 right-0 z-30 transition-all duration-500 ease-out ${
           scrolled
@@ -258,7 +267,7 @@ export default function Navbar() {
         }`}
       >
         <Container className="pt-6 sm:pt-10 pb-3">
-          <nav className="flex flex-wrap items-center justify-between gap-3">
+          <nav className="flex items-center justify-between gap-3">
             <a
               href="#top"
               onClick={scrollToTop}
@@ -266,34 +275,88 @@ export default function Navbar() {
             >
               {navbar.brand}
             </a>
-            <div className="flex flex-wrap gap-4 sm:gap-8">
-              {navbar.navLinks.map((link) => {
-                const isActive = active === link.href;
-                return (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={(e) => handleScrollTo(e, link.href)}
-                    className="group relative text-xs sm:text-sm text-gray-300 hover:text-sky-400 transition-colors duration-200 pb-1"
-                  >
-                    {link.label}
-                    <span
-                      className={`absolute left-0 -bottom-0.5 h-px bg-sky-400 transition-all duration-300 ${
-                        isActive ? "w-full" : "w-0 group-hover:w-full"
-                      }`}
-                    />
-                  </a>
-                );
-              })}
-            </div>
+
+            {/* Bouton hamburger, toujours visible, toujours en haut à droite —
+          même comportement à toutes les tailles d'écran. */}
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((o) => !o)}
+              aria-expanded={mobileNavOpen}
+              aria-label={mobileNavOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              className="flex items-center justify-center lg:w-15 lg:h-15 w-10 h-10 bg-sky-500 rounded-full text-zinc-950"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                aria-hidden="true"
+              >
+                {mobileNavOpen ? (
+                  <path
+                    d="M5 5l10 10M15 5L5 15"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                ) : (
+                  <path
+                    d="M3 6h14M3 10h14M3 14h14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                )}
+              </svg>
+            </button>
           </nav>
+
+          {/* Menu déroulant : grille de liens avec icône, identique à toutes les
+        tailles d'écran. Plus de colonnes disponibles sur grand écran. */}
+          <div
+            className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
+              mobileNavOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            }`}
+          >
+            <div className="overflow-hidden">
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 rounded-lg bg-black/80 p-3">
+                {navbar.navLinks.map((link) => {
+                  const isActive = active === link.href;
+                  return (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={(e) => {
+                        handleScrollTo(e, link.href);
+                        setMobileNavOpen(false);
+                      }}
+                      className={`flex items-center gap-2 rounded px-2.5 py-2 text-xs sm:text-sm transition-colors duration-200 ${
+                        isActive
+                          ? "bg-sky-500/20 text-sky-400"
+                          : "text-gray-300 hover:bg-white/5 hover:text-sky-400"
+                      }`}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 20 20"
+                        aria-hidden="true"
+                        className="shrink-0"
+                      >
+                        {icons[link.href]}
+                      </svg>
+                      {link.label}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </Container>
       </div>
 
-      {/* Bouton bascule : visible à toutes les tailles d'écran dès que
-          scrolled est vrai. Sert uniquement à fermer/rouvrir manuellement
-          — l'ouverture initiale est automatique, gérée par le useEffect
-          ci-dessus. */}
+      {/* Bouton bascule de la colonne de ronds (post-scroll), inchangé */}
       <button
         type="button"
         onClick={() => setMenuOpen((o) => !o)}
@@ -326,9 +389,6 @@ export default function Navbar() {
         </svg>
       </button>
 
-      {/* Colonne de ronds : gouvernée uniquement par menuOpen. Ne se
-          referme plus au clic sur un lien — reste ouverte jusqu'à ce que
-          l'utilisateur clique explicitement le bouton bascule. */}
       <nav
         aria-label="Navigation par section"
         className={`fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2.5 sm:gap-3 transition-all duration-500 ease-out ${

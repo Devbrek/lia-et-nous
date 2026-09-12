@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Container from "@/components/lia-et-nous/Container";
 
 type MechanismBlock = {
@@ -49,12 +49,26 @@ const kwhMax = Math.max(...kwhItems.map((i) => i.value));
 const kwhSource =
   "Institut pour l'eau, l'environnement et la santé de l'ONU, relayé par ONU Info, 2026.";
 
+function subscribeReducedMotion(callback: () => void) {
+  const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-  return reduced;
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
 }
 
 function useInView<T extends HTMLElement>(threshold = 0.3) {

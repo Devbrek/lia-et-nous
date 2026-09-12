@@ -40,19 +40,16 @@ const practiceItems: PracticeItem[] = [
 
 function useInView<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
-  const [inView, setInView] = useState(false);
+  const [inView, setInView] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
 
   useEffect(() => {
+    if (inView) return;
     const el = ref.current;
     if (!el) return;
-
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    if (reduced) {
-      setInView(true);
-      return;
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -65,7 +62,7 @@ function useInView<T extends HTMLElement>() {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [inView]);
 
   return { ref, inView };
 }

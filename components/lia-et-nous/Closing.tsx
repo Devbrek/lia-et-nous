@@ -62,11 +62,11 @@ function useTypewriter(text: string, active: boolean, speed = 28) {
 
   useEffect(() => {
     if (!active) {
-      setDisplay("");
+      queueMicrotask(() => setDisplay(""));
       return;
     }
     let i = 0;
-    setDisplay("");
+    queueMicrotask(() => setDisplay(""));
     const interval = setInterval(() => {
       i += 1;
       setDisplay(text.slice(0, i));

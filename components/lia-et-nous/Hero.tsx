@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import HeroCanvas from "@/components/lia-et-nous/HeroCanvas";
 import Container from "@/components/lia-et-nous/Container";
 import Navbar, { handleScrollTo } from "@/components/lia-et-nous/Navbar";
@@ -27,12 +27,26 @@ const hero: HeroContent = {
   scrollCue: "Comprendre le mécanisme",
 };
 
+function subscribeReducedMotion(callback: () => void) {
+  const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-  return reduced;
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
 }
 
 /** Effet machine à écrire : révèle le texte caractère par caractère, tant

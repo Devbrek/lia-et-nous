@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Container from "@/components/lia-et-nous/Container";
 import HeroCanvas from "@/components/lia-et-nous/HeroCanvas";
 
@@ -44,12 +44,26 @@ const figures: FigureCard[] = [
 const figureNote =
   "Le chiffre de Mistral est plus élevé pour une raison simple : il ne mesure pas la même chose que les deux autres. Son audit compte une part de l'entraînement du modèle, c'est-à-dire la phase où l'IA apprend, avant même d'être utilisée. Il compte aussi l'eau utilisée pour produire l'électricité consommée. Google et OpenAI, eux, ne comptent que le refroidissement du serveur au moment de la requête, c'est-à-dire quand l'IA répond à une question. Avant de croire un chiffre \"vert\" annoncé par une entreprise, le premier réflexe est donc de se demander : qu'est-ce qu'il compte exactement, et qu'est-ce qu'il laisse de côté ?";
 
+function subscribeReducedMotion(callback: () => void) {
+  const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-  return reduced;
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
 }
 
 function useInView<T extends HTMLElement>(threshold = 0.25) {
