@@ -107,7 +107,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative flex flex-col min-h-screen overflow-hidden bg-[#0a0a0a] text-white py-6 sm:py-10 border-b-2 border-sky-500">
+    <section className="relative flex flex-col min-h-dvh overflow-hidden bg-[#0a0a0a] text-white py-6 sm:py-10 border-b-2 border-sky-500">
       <HeroCanvas />
 
       {/* Voile de lisibilité : assombrit la zone où vit le texte (gauche, haut, bas)
