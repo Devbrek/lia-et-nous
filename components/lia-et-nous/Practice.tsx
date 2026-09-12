@@ -144,7 +144,10 @@ function PracticeRow({
 
 export default function Practice() {
   return (
-    <section id="pratique" className="bg-white py-12 md:py-20 text-center">
+    <section
+      id="pratique"
+      className="min-h-dvh flex flex-col justify-center bg-white py-12 md:py-20 text-center"
+    >
       <Container>
         <div className="mx-auto max-w-xl mb-8 md:mb-12">
           <h2 className="font-heading text-2xl md:text-3xl mb-3">
