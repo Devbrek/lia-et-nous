@@ -232,17 +232,9 @@ export default function Navbar() {
   const hrefs = navbar.navLinks.map((l) => l.href);
   const active = useActiveSection(hrefs);
   const [menuOpen, setMenuOpen] = useState(false);
-  const autoOpened = useRef(false);
 
   // Menu mobile en dropdown (nav horizontale du Hero, en dessous de md:)
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  useEffect(() => {
-    if (scrolled && !autoOpened.current) {
-      setMenuOpen(true);
-      autoOpened.current = true;
-    }
-  }, [scrolled]);
 
   function scrollToTop(e: React.MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
