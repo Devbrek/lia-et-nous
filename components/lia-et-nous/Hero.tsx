@@ -95,7 +95,10 @@ export default function Hero() {
   const displayedIntro = reduced ? hero.intro : typedIntro;
 
   return (
-    <section id="home" className="relative flex flex-col min-h-dvh overflow-hidden bg-[#0a0a0a] text-white py-6 sm:py-10 border-b-2 border-sky-500">
+    <section
+      id="home"
+      className="relative flex flex-col min-h-dvh overflow-hidden bg-[#0a0a0a] text-white py-6 sm:py-10 border-b-2 border-sky-500"
+    >
       <HeroCanvas />
 
       {/* Voile de lisibilité : assombrit la zone où vit le texte (gauche, haut, bas)
@@ -161,7 +164,7 @@ export default function Hero() {
           </div>
 
           <div className="max-w-lg order-2 sm:order-1">
-            <h1 className="font-heading text-sky-500 text-4xl sm:text-6xl md:text-7xl flex flex-wrap justify-center sm:justify-start gap-x-3">
+            <h1 className="font-heading font-bold text-sky-500 text-4xl sm:text-6xl md:text-7xl flex flex-wrap justify-center sm:justify-start gap-x-3">
               <span
                 className={`inline-block transition-all duration-1200 ease-out ${
                   show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
