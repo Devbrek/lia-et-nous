@@ -45,7 +45,7 @@ const sources: Source[] = [
 
 export default function Sources() {
   return (
-    <section className="relative overflow-hidden bg-zinc-950 text-white py-10 md:py-16 border-t-2  border-sky-500 text-center ">
+    <section className="relative min-h-dvh flex flex-col justify-center overflow-hidden bg-zinc-950 text-white py-10 md:py-16 border-t-2  border-sky-500 text-center ">
       <HeroCanvas />
 
       {/* Voile léger : laisse les particules et lignes bien visibles
