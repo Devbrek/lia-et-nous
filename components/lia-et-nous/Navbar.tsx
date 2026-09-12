@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Container from "@/components/lia-et-nous/Container";
+import Image from "next/image";
 
 type NavLink = {
   label: string;
@@ -14,7 +15,7 @@ type NavbarContent = {
 };
 
 const navbar: NavbarContent = {
-  brand: "L'IA et nous",
+  brand: "",
   navLinks: [
     { label: "Accueil", href: "#home" },
     { label: "Le mécanisme", href: "#mecanisme" },
@@ -287,9 +288,15 @@ export default function Navbar() {
             <a
               href="#top"
               onClick={scrollToTop}
-              className="font-heading text-base sm:text-lg text-white hover:text-sky-400 transition-colors duration-200"
+              className="flex items-center hover:opacity-80 transition-opacity duration-200"
             >
-              {navbar.brand}
+              <Image
+                src="/iaetnous.svg"
+                alt="L'IA et nous"
+                width={36}
+                height={36}
+                className="w-10 h-10 sm:w-15 sm:h-15"
+              />
             </a>
 
             {/* Bouton hamburger, toujours visible, toujours en haut à droite —
