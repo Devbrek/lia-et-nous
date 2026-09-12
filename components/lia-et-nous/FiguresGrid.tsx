@@ -128,7 +128,7 @@ export default function FiguresGrid() {
   return (
     <section
       id="chiffres"
-      className="relative overflow-hidden bg-zinc-950 text-white py-12 md:py-20"
+      className="relative min-h-dvh flex flex-col justify-center overflow-hidden bg-zinc-950 text-white py-12 md:py-20"
     >
       <HeroCanvas />
 
