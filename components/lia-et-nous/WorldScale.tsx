@@ -126,15 +126,19 @@ function WorldStatCard({
   return (
     <div
       ref={ref}
-      className={`flex-1 md:min-w-55 pt-6 px-5 sm:px-7 md:pt-7 border-t md:border-t-0 md:border-l border-gray-300 ${
+      className={`flex-1 md:min-w-55 pt-3 px-3 sm:px-7 md:pt-7 border-t md:border-t-0 md:border-l border-gray-300 ${
         isFirst ? "border-t-0 md:border-l-0 md:pl-0" : ""
       }`}
     >
-      <div className="font-heading text-3xl sm:text-4xl text-gray-800 tabular-nums">
+      <div className="font-heading text-xl sm:text-4xl text-gray-800 tabular-nums">
         {displayValue}
       </div>
-      <div className="font-body text-sm text-gray-600 mt-1.5">{stat.label}</div>
-      <div className="font-body text-xs text-gray-500 mt-2">{stat.source}</div>
+      <div className="font-body text-xs md:text-sm text-gray-600 mt-1 md:mt-1.5">
+        {stat.label}
+      </div>
+      <div className="font-body text-[11px] md:text-xs text-gray-500 mt-1 md:mt-2">
+        {stat.source}
+      </div>
     </div>
   );
 }
@@ -143,16 +147,60 @@ function DiscrepancyNote() {
   const { ref, inView } = useInView<HTMLDivElement>(0.3);
   const reduced = usePrefersReducedMotion();
   const show = reduced || inView;
+  const [open, setOpen] = useState(false);
 
   return (
     <div
       ref={ref}
-      className={`mt-8 p-5 sm:mt-11 sm:p-6 bg-gray-100 border-l-4 border-gray-400 text-sm text-gray-800 max-w-2xl transition-all duration-700 ease-out ${
+      className={`mt-4 sm:mt-11 bg-gray-100 border-l-4 border-gray-400 text-sm text-gray-800 max-w-2xl transition-all duration-700 ease-out ${
         show ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
       }`}
       style={{ transitionDelay: reduced ? "0ms" : "450ms" }}
     >
-      {discrepancyNote}
+      {/* Sur mobile, le texte est replié derrière un bouton persistant
+          (flèche qui pivote, jamais masqué) pour ne pas alourdir la
+          hauteur de la section. Sur desktop (md:), le texte reste visible
+          en permanence comme avant. */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls="discrepancy-panel"
+        className="md:hidden w-full flex items-center justify-between gap-2 p-4 text-left"
+      >
+        <span className="font-body text-sm font-medium text-gray-800">
+          Pourquoi ces chiffres diffèrent
+        </span>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 12 12"
+          aria-hidden="true"
+          className={`shrink-0 transition-transform duration-300 ${
+            open ? "rotate-180" : "rotate-0"
+          }`}
+        >
+          <path
+            d="M2,4 L6,8 L10,4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+          />
+        </svg>
+      </button>
+
+      <p className="hidden md:block p-5 sm:p-6">{discrepancyNote}</p>
+
+      <div
+        id="discrepancy-panel"
+        className={`md:hidden grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <p className="px-4 pb-4">{discrepancyNote}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -161,14 +209,16 @@ export default function WorldScale() {
   return (
     <section
       id="wordscale"
-      className="min-h-dvh flex flex-col justify-center bg-white py-12 md:py-20"
+      className="min-h-dvh flex flex-col justify-center bg-white py-6 md:py-20"
     >
       <Container>
-        <div className="max-w-xl mb-8 md:mb-12">
-          <h2 className="font-heading text-2xl md:text-3xl mb-3">
+        <div className="max-w-xl mb-4 md:mb-12">
+          <h2 className="font-heading text-xl md:text-3xl mb-2 md:mb-3">
             {sectionHead.title}
           </h2>
-          <p className="font-body text-gray-600">{sectionHead.intro}</p>
+          <p className="font-body text-sm md:text-base text-gray-600">
+            {sectionHead.intro}
+          </p>
         </div>
 
         <div className="flex flex-col md:flex-row border-t border-gray-300">

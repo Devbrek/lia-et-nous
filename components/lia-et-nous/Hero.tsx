@@ -81,7 +81,7 @@ export default function Hero() {
   const displayedIntro = reduced ? hero.intro : typedIntro;
 
   return (
-    <section className="relative flex flex-col min-h-dvh overflow-hidden bg-[#0a0a0a] text-white py-6 sm:py-10 border-b-2 border-sky-500">
+    <section id="home" className="relative flex flex-col min-h-dvh overflow-hidden bg-[#0a0a0a] text-white py-6 sm:py-10 border-b-2 border-sky-500">
       <HeroCanvas />
 
       {/* Voile de lisibilité : assombrit la zone où vit le texte (gauche, haut, bas)

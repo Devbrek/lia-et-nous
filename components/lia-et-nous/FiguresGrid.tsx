@@ -79,17 +79,19 @@ function FigureColumn({ fig, delayMs }: { fig: FigureCard; delayMs: number }) {
   const { ref, inView } = useInView<HTMLDivElement>();
   const reduced = usePrefersReducedMotion();
   const show = reduced || inView;
+  const [open, setOpen] = useState(false);
+  const panelId = `figure-panel-${fig.name}`;
 
   return (
     <div
       ref={ref}
-      className={`flex-1 md:min-w-60 bg-zinc-950 p-6 sm:p-8 transition-all duration-700 ease-out ${
+      className={`flex-1 md:min-w-60 bg-zinc-950 p-5 md:p-8 transition-all duration-700 ease-out ${
         show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       }`}
       style={{ transitionDelay: reduced ? "0ms" : `${delayMs}ms` }}
     >
       <div
-        className={`font-heading text-3xl sm:text-4xl transition-all duration-500 ease-out ${
+        className={`font-heading text-2xl md:text-4xl transition-all duration-500 ease-out ${
           show ? "opacity-100 scale-100" : "opacity-0 scale-90"
         }`}
         style={{ transitionDelay: reduced ? "0ms" : `${delayMs + 150}ms` }}
@@ -97,21 +99,71 @@ function FigureColumn({ fig, delayMs }: { fig: FigureCard; delayMs: number }) {
         {fig.value}
       </div>
       <div
-        className={`font-body text-sm text-gray-300 mt-1 mb-3 transition-opacity duration-500 ${
+        className={`font-body text-xs md:text-sm text-gray-300 mt-1 mb-2 md:mb-3 transition-opacity duration-500 ${
           show ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionDelay: reduced ? "0ms" : `${delayMs + 220}ms` }}
       >
         {fig.name}
       </div>
+
+      {/* Sur mobile, la description est repliée par défaut derrière un
+          bouton persistant (flèche qui pivote) — le texte n'est jamais
+          raccourci, juste masqué jusqu'au clic, et reste refermable. Sur
+          desktop (md:), tout reste visible en permanence comme avant. */}
       <p
-        className={`font-body text-sm text-gray-300 mb-3 transition-opacity duration-500 ${
+        className={`hidden md:block font-body text-sm text-gray-300 mb-3 transition-opacity duration-500 ${
           show ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionDelay: reduced ? "0ms" : `${delayMs + 300}ms` }}
       >
         {fig.description}
       </p>
+
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className={`md:hidden flex items-center gap-1.5 font-body text-xs text-sky-400 hover:text-sky-300 mb-2 transition-opacity duration-500 ${
+          show ? "opacity-100" : "opacity-0"
+        }`}
+        style={{ transitionDelay: reduced ? "0ms" : `${delayMs + 300}ms` }}
+      >
+        <span className="underline underline-offset-2">
+          {open ? "Refermer" : "Lire l'explication"}
+        </span>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 12 12"
+          aria-hidden="true"
+          className={`shrink-0 transition-transform duration-300 ${
+            open ? "rotate-180" : "rotate-0"
+          }`}
+        >
+          <path
+            d="M2,4 L6,8 L10,4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+          />
+        </svg>
+      </button>
+
+      <div
+        id={panelId}
+        className={`md:hidden grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <p className="font-body text-sm text-gray-300 mb-3">
+            {fig.description}
+          </p>
+        </div>
+      </div>
+
       <span
         className={`inline-block text-xs px-2.5 py-1 border border-gray-500 rounded-full text-gray-300 transition-all duration-500 ease-out ${
           show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
@@ -124,11 +176,62 @@ function FigureColumn({ fig, delayMs }: { fig: FigureCard; delayMs: number }) {
   );
 }
 
+function FigureNote() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mt-4 pt-4 sm:mt-9 sm:pt-7 border-t border-sky-800 max-w-3xl">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls="figure-note-panel"
+        className="md:hidden flex items-center gap-1.5 font-body text-xs text-sky-400 hover:text-sky-300"
+      >
+        <span className="underline underline-offset-2">
+          {open ? "Refermer" : "Pourquoi ces chiffres diffèrent"}
+        </span>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 12 12"
+          aria-hidden="true"
+          className={`shrink-0 transition-transform duration-300 ${
+            open ? "rotate-180" : "rotate-0"
+          }`}
+        >
+          <path
+            d="M2,4 L6,8 L10,4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+          />
+        </svg>
+      </button>
+
+      <p className="hidden md:block font-body text-sm text-gray-300">
+        {figureNote}
+      </p>
+
+      <div
+        id="figure-note-panel"
+        className={`md:hidden grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <p className="font-body text-sm text-gray-300 pt-2">{figureNote}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function FiguresGrid() {
   return (
     <section
       id="chiffres"
-      className="relative min-h-dvh flex flex-col justify-center overflow-hidden bg-zinc-950 text-white py-12 md:py-20"
+      className="relative min-h-dvh flex flex-col justify-center overflow-hidden bg-zinc-950 text-white py-6 md:py-20"
     >
       <HeroCanvas />
 
@@ -142,11 +245,13 @@ export default function FiguresGrid() {
       />
 
       <Container className="relative z-10">
-        <div className="max-w-xl mb-8 md:mb-12">
-          <h2 className="font-heading text-2xl md:text-3xl mb-3">
+        <div className="max-w-xl mb-4 md:mb-12">
+          <h2 className="font-heading text-xl md:text-3xl mb-2 md:mb-3">
             {sectionHead.title}
           </h2>
-          <p className="font-body text-gray-300">{sectionHead.intro}</p>
+          <p className="font-body text-sm md:text-base text-gray-300">
+            {sectionHead.intro}
+          </p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-px bg-sky-800">
@@ -155,9 +260,7 @@ export default function FiguresGrid() {
           ))}
         </div>
 
-        <p className="font-body text-sm text-gray-300 mt-6 pt-5 sm:mt-9 sm:pt-7 border-t border-sky-800 max-w-3xl">
-          {figureNote}
-        </p>
+        <FigureNote />
       </Container>
     </section>
   );

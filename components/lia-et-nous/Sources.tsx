@@ -8,6 +8,8 @@ type Source = {
 };
 
 const sourcesTitle = "Sources citées sur cette page";
+const sourcesIntro =
+  "Chaque chiffre affiché sur cette page renvoie à l'une des sources ci-dessous.";
 
 const sources: Source[] = [
   {
@@ -45,39 +47,50 @@ const sources: Source[] = [
 
 export default function Sources() {
   return (
-    <section className="relative min-h-dvh flex flex-col justify-center overflow-hidden bg-zinc-950 text-white py-10 md:py-16 border-t-2  border-sky-500 text-center ">
+    <section
+      id="sources"
+      className="relative min-h-dvh flex flex-col overflow-hidden bg-zinc-950 text-white py-6 md:py-16 border-t-2 border-sky-500"
+    >
       <HeroCanvas />
 
-      {/* Voile léger : laisse les particules et lignes bien visibles
-          (comme dans Hero/Closing), juste assez de contraste pour lire
-          les liens par-dessus. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-5"
         style={{
           background:
-            "radial-gradient(ellipse 900px 500px at 50% 40%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 75%)",
+            "radial-gradient(ellipse 1100px 600px at 50% 40%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 75%)",
         }}
       />
 
-      <Container className="relative z-10 bg-black/30 p-5">
-        <h2 className="font-body text-base font-medium text-gray-300 mb-4 md:mb-6 ">
-          {sourcesTitle}
-        </h2>
-        <ul className="mx-auto grid max-w-3xl grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-10 gap-y-3 text-sm list-none">
-          {sources.map((source) => (
+      <Container className="relative z-10 flex-1 flex flex-col justify-center">
+        <div className="text-center mb-4 md:mb-12">
+          <h2 className="font-heading text-lg sm:text-2xl md:text-3xl mb-1.5 md:mb-2">
+            {sourcesTitle}
+          </h2>
+          <p className="font-body text-xs md:text-sm text-gray-400 max-w-md mx-auto">
+            {sourcesIntro}
+          </p>
+        </div>
+
+        <ul className="mx-auto grid max-w-5xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 list-none">
+          {sources.map((source, i) => (
             <li key={source.href}>
               <a
                 href={source.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-200 hover:text-sky-500 hover:underline"
+                className="group block h-full rounded-lg border border-gray-800 bg-black/30 p-2.5 md:p-4 transition-all duration-300 hover:border-sky-600 hover:bg-black/50 hover:-translate-y-0.5"
               >
-                {source.label}
+                <span className="font-heading text-[10px] md:text-xs text-sky-500 mb-1 md:mb-2 inline-block">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="block text-xs md:text-sm text-gray-200 group-hover:text-sky-400 transition-colors">
+                  {source.label}
+                </span>
+                <span className="block text-[10px] md:text-xs text-gray-500 mt-1 md:mt-1.5">
+                  {source.detail}
+                </span>
               </a>
-              <span className="block text-xs text-gray-400 mt-0.5">
-                {source.detail}
-              </span>
             </li>
           ))}
         </ul>

@@ -49,8 +49,6 @@ const kwhMax = Math.max(...kwhItems.map((i) => i.value));
 const kwhSource =
   "Institut pour l'eau, l'environnement et la santé de l'ONU, relayé par ONU Info, 2026.";
 
-const clickInvite = "Cliquer pour lire le détail";
-
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -99,7 +97,7 @@ function MechanismStep({
 
   return (
     <div ref={ref} className="flex-1 md:min-w-70 relative">
-      <div className="relative w-11 h-11 mb-4">
+      <div className="relative w-9 h-9 md:w-11 md:h-11 mb-2 md:mb-4">
         {!open && !reduced && (
           <span
             aria-hidden="true"
@@ -119,7 +117,7 @@ function MechanismStep({
               ? `Masquer le détail : ${block.title}`
               : `Voir le détail : ${block.title}`
           }
-          className={`absolute inset-0 font-heading text-sm border rounded-full flex items-center justify-center transition-all duration-500 hover:scale-105 cursor-pointer ${
+          className={`absolute inset-0 font-heading text-xs md:text-sm border rounded-full flex items-center justify-center transition-all duration-500 hover:scale-105 cursor-pointer ${
             show
               ? "border-sky-600 text-sky-700 opacity-100"
               : "border-gray-400 opacity-0 translate-y-2"
@@ -164,7 +162,7 @@ function MechanismStep({
 
       <h3
         onClick={() => setOpen((o) => !o)}
-        className={`font-heading text-xl mb-2 font-medium cursor-pointer transition-all duration-500 ${
+        className={`font-heading text-base md:text-xl mb-1 md:mb-2 font-medium cursor-pointer transition-all duration-500 ${
           show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
         }`}
         style={{ transitionDelay: reduced ? "0ms" : `${delayMs + 100}ms` }}
@@ -179,7 +177,9 @@ function MechanismStep({
         }`}
       >
         <div className="overflow-hidden">
-          <p className="font-body text-gray-600">{block.text}</p>
+          <p className="font-body text-sm md:text-base text-gray-600">
+            {block.text}
+          </p>
         </div>
       </div>
     </div>
@@ -217,11 +217,11 @@ function KwhBar({ item, delayMs }: { item: KwhItem; delayMs: number }) {
   const barPercent = (item.value / kwhMax) * 100;
 
   return (
-    <div ref={ref} className="flex-1 md:min-w-37.5 pt-5 px-5 sm:px-6">
-      <div className="font-heading text-2xl text-gray-800 tabular-nums">
+    <div ref={ref} className="flex-1 md:min-w-37.5 pt-3 md:pt-5 px-5 sm:px-6">
+      <div className="font-heading text-lg md:text-2xl text-gray-800 tabular-nums">
         {displayValue} {item.unit}
       </div>
-      <div className="font-body text-sm text-gray-600 mt-1 mb-3">
+      <div className="font-body text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1 mb-2 md:mb-3">
         {item.label}
       </div>
       <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
@@ -242,17 +242,19 @@ export default function Mechanism() {
   return (
     <section
       id="mecanisme"
-      className="min-h-dvh flex flex-col justify-center bg-white py-12 md:py-20"
+      className="min-h-dvh flex flex-col justify-center bg-white py-6 md:py-20"
     >
       <Container>
-        <div className="max-w-xl mb-8 md:mb-12">
-          <h2 className="font-heading text-2xl md:text-3xl mb-3">
+        <div className="max-w-xl mb-4 md:mb-12">
+          <h2 className="font-heading text-xl md:text-3xl mb-2 md:mb-3">
             {sectionHead.title}
           </h2>
-          <p className="font-body text-gray-600">{sectionHead.intro}</p>
+          <p className="font-body text-sm md:text-base text-gray-600">
+            {sectionHead.intro}
+          </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 md:gap-10">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-10">
           {mechanismBlocks.map((block, i) => (
             <MechanismStep
               key={block.number}
@@ -263,23 +265,27 @@ export default function Mechanism() {
           ))}
         </div>
 
-        <p className="font-body text-sm text-gray-600 mt-8 md:mt-10">
+        <p className="font-body text-xs md:text-sm text-gray-600 mt-4 md:mt-10">
           {kwhIntro}
         </p>
 
-        <div className="flex flex-col md:flex-row mt-4 border-t border-gray-300 md:border-t-0">
+        <div className="grid grid-cols-2 md:flex md:flex-row mt-2 md:mt-4 border-t border-gray-300 md:border-t-0">
           {kwhItems.map((item, i) => (
             <div
               key={item.label}
-              className={`flex-1 md:min-w-37.5 border-t md:border-t-0 md:border-l border-gray-300 ${
-                i === 0 ? "border-t-0 md:border-l-0" : ""
-              }`}
+              className={`flex-1 md:min-w-37.5 border-gray-300 ${
+                i % 2 === 0 ? "border-r md:border-r-0" : ""
+              } ${
+                i < 2 ? "border-b md:border-b-0" : ""
+              } md:border-t-0 md:border-l ${i === 0 ? "md:border-l-0" : ""}`}
             >
               <KwhBar item={item} delayMs={i * 120} />
             </div>
           ))}
         </div>
-        <p className="font-body text-xs text-gray-500 mt-4">{kwhSource}</p>
+        <p className="font-body text-xs text-gray-500 mt-2 md:mt-4">
+          {kwhSource}
+        </p>
       </Container>
     </section>
   );

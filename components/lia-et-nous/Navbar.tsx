@@ -1,15 +1,22 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Container from "@/components/lia-et-nous/Container";
+
+type NavLink = {
+  label: string;
+  href: string;
+};
 
 type NavbarContent = {
   brand: string;
-  navLinks: { label: string; href: string }[];
+  navLinks: NavLink[];
 };
 
 const navbar: NavbarContent = {
   brand: "L'IA et nous",
   navLinks: [
+    { label: "Accueil", href: "#home" },
     { label: "Le mécanisme", href: "#mecanisme" },
     { label: "Les chiffres", href: "#chiffres" },
     { label: "À l'échelle mondiale", href: "#wordscale" },
@@ -19,6 +26,8 @@ const navbar: NavbarContent = {
     { label: "Sources", href: "#sources" },
   ],
 };
+
+const SCROLL_THRESHOLD = 400;
 
 export function handleScrollTo(
   e: React.MouseEvent<HTMLAnchorElement>,
@@ -36,24 +45,330 @@ export function handleScrollTo(
   });
 }
 
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+  return reduced;
+}
+
+function useScrolledPast(threshold: number) {
+  const [scrolled, setScrolled] = useState(false);
+  const ticking = useRef(false);
+
+  useEffect(() => {
+    function handleScroll() {
+      if (ticking.current) return;
+      ticking.current = true;
+      requestAnimationFrame(() => {
+        setScrolled(window.scrollY > threshold);
+        ticking.current = false;
+      });
+    }
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [threshold]);
+
+  return scrolled;
+}
+
+function useActiveSection(hrefs: string[]) {
+  const [active, setActive] = useState<string | null>(null);
+
+  useEffect(() => {
+    const elements = hrefs
+      .map((href) => ({ href, el: document.querySelector(href) }))
+      .filter((entry): entry is { href: string; el: Element } => !!entry.el);
+
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) {
+          const match = elements.find((e) => e.el === visible.target);
+          if (match) setActive(match.href);
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    elements.forEach(({ el }) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [hrefs]);
+
+  return active;
+}
+
+const icons: Record<string, React.ReactNode> = {
+  "#home": (
+    <path
+      d="M3.5 9.5L10 4l6.5 5.5M5.5 8v8h9V8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  "#mecanisme": (
+    <path
+      d="M10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z M10 2.5v2M10 15.5v2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M17.5 10h-2M4.5 10h-2M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
+  ),
+  "#chiffres": (
+    <path
+      d="M4 16V9M10 16V4M16 16v-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+    />
+  ),
+  "#wordscale": (
+    <>
+      <circle
+        cx="10"
+        cy="10"
+        r="7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
+      <path
+        d="M2.5 10h15M10 2.5c2.2 2 2.2 13 0 15M10 2.5c-2.2 2-2.2 13 0 15"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
+    </>
+  ),
+  "#pratique": (
+    <path
+      d="M10 3a4.5 4.5 0 0 0-2.5 8.2c.4.3.6.7.6 1.1v.7h3.8v-.7c0-.4.2-.8.6-1.1A4.5 4.5 0 0 0 10 3ZM8.3 15.5h3.4M8.8 17h2.4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  "#closing": (
+    <>
+      <path
+        d="M5 17.5V3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M5 4h10l-2.2 2.5L15 9H5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7 4.9h1.3v1.3H7zM9.6 4.9h1.3v1.3H9.6zM8.3 6.2h1.3v1.3H8.3zM11 6.2h1.3v1.3H11zM7 7.5h1.3v1.3H7zM9.6 7.5h1.3v1.3H9.6z"
+        fill="currentColor"
+      />
+    </>
+  ),
+  "#apropos": (
+    <>
+      <circle
+        cx="10"
+        cy="10"
+        r="7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
+      <circle cx="10" cy="6.8" r="0.9" fill="currentColor" />
+      <path
+        d="M10 9.5v4.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </>
+  ),
+  "#sources": (
+    <path
+      d="M8 12l4-4M7 9.5l-1.8 1.8a2.5 2.5 0 0 0 3.5 3.5L10.5 13M13 10.5l1.8-1.8a2.5 2.5 0 0 0-3.5-3.5L9.5 7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
+  ),
+};
+
 export default function Navbar() {
+  const reduced = usePrefersReducedMotion();
+  const scrolledRaw = useScrolledPast(SCROLL_THRESHOLD);
+  const scrolled = !reduced && scrolledRaw;
+  const hrefs = navbar.navLinks.map((l) => l.href);
+  const active = useActiveSection(hrefs);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const autoOpened = useRef(false);
+
+  // Ouverture automatique une seule fois, au premier franchissement du
+  // seuil de scroll. Une fois ouverte, elle ne se referme jamais toute
+  // seule (ni en remontant, ni en cliquant un lien) : seul le bouton peut
+  // la fermer, et cette fermeture est alors définitive jusqu'à ce que
+  // l'utilisateur la rouvre lui-même.
+  useEffect(() => {
+    if (scrolled && !autoOpened.current) {
+      setMenuOpen(true);
+      autoOpened.current = true;
+    }
+  }, [scrolled]);
+
+  function scrollToTop(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    window.scrollTo({
+      top: 0,
+      behavior: reduced ? "auto" : "smooth",
+    });
+  }
+
   return (
-    <Container>
-      <nav className="relative z-10 flex flex-wrap items-center justify-between gap-3">
-        <div className="font-heading text-base sm:text-lg">{navbar.brand}</div>
-        <div className="flex flex-wrap gap-3 sm:gap-8">
-          {navbar.navLinks.map((link) => (
+    <>
+      {/* Nav horizontale : visible en haut du Hero. Fond qui se voile
+          légèrement dès qu'on scrolle un peu (avant même le seuil de
+          bascule) pour garder le texte lisible sur les particules du
+          canvas, soulignement animé au survol, point d'activité sous le
+          lien de la section actuellement visible. */}
+      <div
+        className={`fixed top-0 left-0 right-0 z-30 transition-all duration-500 ease-out ${
+          scrolled
+            ? "opacity-0 -translate-y-4 pointer-events-none"
+            : "opacity-100 translate-y-0"
+        }`}
+      >
+        <Container className="pt-6 sm:pt-10 pb-3">
+          <nav className="flex flex-wrap items-center justify-between gap-3">
             <a
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleScrollTo(e, link.href)}
-              className="text-xs sm:text-sm text-gray-300 hover:text-sky-400 transition-colors duration-200"
+              href="#top"
+              onClick={scrollToTop}
+              className="font-heading text-base sm:text-lg text-white hover:text-sky-400 transition-colors duration-200"
             >
-              {link.label}
+              {navbar.brand}
             </a>
-          ))}
-        </div>
+            <div className="flex flex-wrap gap-4 sm:gap-8">
+              {navbar.navLinks.map((link) => {
+                const isActive = active === link.href;
+                return (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => handleScrollTo(e, link.href)}
+                    className="group relative text-xs sm:text-sm text-gray-300 hover:text-sky-400 transition-colors duration-200 pb-1"
+                  >
+                    {link.label}
+                    <span
+                      className={`absolute left-0 -bottom-0.5 h-px bg-sky-400 transition-all duration-300 ${
+                        isActive ? "w-full" : "w-0 group-hover:w-full"
+                      }`}
+                    />
+                  </a>
+                );
+              })}
+            </div>
+          </nav>
+        </Container>
+      </div>
+
+      {/* Bouton bascule : visible à toutes les tailles d'écran dès que
+          scrolled est vrai. Sert uniquement à fermer/rouvrir manuellement
+          — l'ouverture initiale est automatique, gérée par le useEffect
+          ci-dessus. */}
+      <button
+        type="button"
+        onClick={() => setMenuOpen((o) => !o)}
+        aria-expanded={menuOpen}
+        aria-label={menuOpen ? "Fermer la navigation" : "Ouvrir la navigation"}
+        className={`fixed right-3 sm:right-5 bottom-4 z-40 flex items-center justify-center w-11 h-11 rounded-full bg-gray-900 text-white shadow-lg transition-all duration-300 ${
+          scrolled
+            ? "opacity-100 scale-100"
+            : "opacity-0 scale-75 pointer-events-none"
+        }`}
+      >
+        <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true">
+          {menuOpen ? (
+            <path
+              d="M5 5l10 10M15 5L5 15"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          ) : (
+            <path
+              d="M4 6h12M4 10h12M4 14h12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          )}
+        </svg>
+      </button>
+
+      {/* Colonne de ronds : gouvernée uniquement par menuOpen. Ne se
+          referme plus au clic sur un lien — reste ouverte jusqu'à ce que
+          l'utilisateur clique explicitement le bouton bascule. */}
+      <nav
+        aria-label="Navigation par section"
+        className={`fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2.5 sm:gap-3 transition-all duration-500 ease-out ${
+          scrolled && menuOpen
+            ? "opacity-100 translate-x-0 pointer-events-auto"
+            : "opacity-0 translate-x-4 pointer-events-none"
+        }`}
+      >
+        {navbar.navLinks.map((link) => {
+          const isActive = active === link.href;
+          return (
+            <div key={link.href} className="relative flex items-center group">
+              <span className="absolute right-full mr-3 whitespace-nowrap text-xs text-white bg-gray-900 px-2 py-1 rounded opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 pointer-events-none shadow-md">
+                {link.label}
+              </span>
+
+              <a
+                href={link.href}
+                onClick={(e) => handleScrollTo(e, link.href)}
+                aria-label={link.label}
+                aria-current={isActive ? "true" : undefined}
+                className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full shadow-md transition-all duration-300 ${
+                  isActive
+                    ? "bg-sky-500 text-white scale-110"
+                    : "bg-gray-900 text-gray-300 hover:bg-gray-800 hover:text-sky-400"
+                }`}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  {icons[link.href]}
+                </svg>
+              </a>
+            </div>
+          );
+        })}
       </nav>
-    </Container>
+    </>
   );
 }

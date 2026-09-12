@@ -7,6 +7,7 @@ import Practice from "@/components/lia-et-nous/Practice";
 import Closing from "@/components/lia-et-nous/Closing";
 import Sources from "@/components/lia-et-nous/Sources";
 import About from "@/components/lia-et-nous/About";
+import Footer from "@/components/lia-et-nous/Footer";
 import Image from "next/image";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
       <Closing />
       <About />
       <Sources />
+      <Footer />
     </div>
   );
 }
