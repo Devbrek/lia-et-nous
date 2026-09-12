@@ -16,7 +16,10 @@ const about: AboutContent = {
 
 export default function About() {
   return (
-    <section id="apropos" className="bg-white py-12 md:py-20 border-t border-gray-200 text-center">
+    <section
+      id="apropos"
+      className="min-h-dvh flex flex-col justify-center bg-white py-12 md:py-20 border-t border-gray-200 text-center"
+    >
       <Container>
       <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl mb-5 md:mb-7">
         {about.title}
