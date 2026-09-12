@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import HeroCanvas from "@/components/lia-et-nous/HeroCanvas";
 import Container from "@/components/lia-et-nous/Container";
+import Navbar, { handleScrollTo } from "@/components/lia-et-nous/Navbar";
 import Image from "next/image";
 
 type HeroContent = {
-  brand: string;
-  navLinks: { label: string; href: string }[];
   titlePart1: string;
   titlePart2: string;
   subtitle: string;
@@ -20,15 +19,6 @@ type HeroContent = {
 };
 
 const hero: HeroContent = {
-  brand: "L'IA et nous",
-  navLinks: [
-    { label: "Le mécanisme", href: "#mecanisme" },
-    { label: "Les chiffres", href: "#chiffres" },
-    { label: "À l'échelle mondiale", href: "#wordscale" },
-    { label: "En pratique", href: "#pratique" },
-    { label: "Pour finir", href: "#closing" },
-    { label: "À propos", href: "#apropos" },
-  ],
   titlePart1: "L'IA",
   titlePart2: "et nous",
   subtitle: "Ce que ça consomme vraiment, et comment s'en servir.",
@@ -90,22 +80,6 @@ export default function Hero() {
   const typedIntro = useTypewriter(hero.intro, reduced || startTyping, 2);
   const displayedIntro = reduced ? hero.intro : typedIntro;
 
-  function handleScrollTo(
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string,
-  ) {
-    e.preventDefault();
-    const target = document.querySelector(href);
-    if (!target) return;
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    target.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "start",
-    });
-  }
-
   return (
     <section className="relative flex flex-col min-h-dvh overflow-hidden bg-[#0a0a0a] text-white py-6 sm:py-10 border-b-2 border-sky-500">
       <HeroCanvas />
@@ -123,65 +97,18 @@ export default function Hero() {
         }}
       />
 
-      <Container>
-        <nav className="relative z-10 flex flex-wrap items-center justify-between gap-3">
-          <div className="font-heading text-base sm:text-lg">{hero.brand}</div>
-          <div className="flex flex-wrap gap-3 sm:gap-8">
-            {hero.navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleScrollTo(e, link.href)}
-                className="text-xs sm:text-sm text-gray-300 hover:text-sky-400 transition-colors duration-200"
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-        </nav>
-      </Container>
+      <Navbar />
 
       <Container className="relative z-10 flex-1 flex items-center justify-center">
-        <div className="max-w-4xl w-full flex items-center justify-center gap-8 sm:gap-12 lg:gap-20">
-          <div className="max-w-lg">
-            <h1 className="font-heading text-sky-500 text-4xl sm:text-6xl md:text-7xl flex flex-wrap gap-x-3">
-              <span
-                className={`inline-block transition-all duration-1200 ease-out ${
-                  show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-                }`}
-              >
-                {hero.titlePart1}
-              </span>
-              <span
-                className={`inline-block transition-all duration-1200 ease-out ${
-                  show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-                }`}
-                style={{ transitionDelay: reduced ? "0ms" : "550ms" }}
-              >
-                {hero.titlePart2}
-              </span>
-            </h1>
-            <p className="font-heading text-lg sm:text-xl md:text-2xl text-gray-200 mt-3 sm:mt-4">
-              {hero.subtitle}
-            </p>
-            <p className="font-body text-sm sm:text-base text-gray-300 mt-4 sm:mt-6 max-w-prose min-h-[6.5rem] sm:min-h-[5.5rem]">
-              {displayedIntro}
-              {!reduced &&
-                startTyping &&
-                displayedIntro.length < hero.intro.length && (
-                  <span className="animate-pulse">|</span>
-                )}
-            </p>
-          </div>
-
-          <div className="flex-shrink-0">
+        <div className="max-w-4xl w-full flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 lg:gap-20 text-center sm:text-left">
+          <div className="flex-shrink-0 order-1 sm:order-2">
             {/* Logo scindé en deux moitiés qui se rejoignent : la gauche monte
-                depuis le bas, la droite descend depuis le haut, les deux en
-                fondu. Chaque moitié est un conteneur overflow-hidden de
-                largeur 50% ; l'image à l'intérieur est doublée en largeur
-                (200%) et calée sur le bord correspondant, pour ne laisser
-                voir que sa moitié. */}
-            <div className="relative w-20 sm:w-32 md:w-44 lg:w-56 aspect-square">
+          depuis le bas, la droite descend depuis le haut, les deux en
+          fondu. Chaque moitié est un conteneur overflow-hidden de
+          largeur 50% ; l'image à l'intérieur est doublée en largeur
+          (200%) et calée sur le bord correspondant, pour ne laisser
+          voir que sa moitié. */}
+            <div className="relative w-16 sm:w-32 md:w-44 lg:w-56 aspect-square">
               <div
                 className={`absolute inset-y-0 left-0 w-1/2 overflow-hidden transition-all duration-1200 ease-out ${
                   show
@@ -217,6 +144,37 @@ export default function Hero() {
                 />
               </div>
             </div>
+          </div>
+
+          <div className="max-w-lg order-2 sm:order-1">
+            <h1 className="font-heading text-sky-500 text-4xl sm:text-6xl md:text-7xl flex flex-wrap justify-center sm:justify-start gap-x-3">
+              <span
+                className={`inline-block transition-all duration-1200 ease-out ${
+                  show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                }`}
+              >
+                {hero.titlePart1}
+              </span>
+              <span
+                className={`inline-block transition-all duration-1200 ease-out ${
+                  show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                }`}
+                style={{ transitionDelay: reduced ? "0ms" : "550ms" }}
+              >
+                {hero.titlePart2}
+              </span>
+            </h1>
+            <p className="font-heading text-lg sm:text-xl md:text-2xl text-gray-200 mt-3 sm:mt-4">
+              {hero.subtitle}
+            </p>
+            <p className="font-body text-sm sm:text-base text-gray-300 mt-4 sm:mt-6 max-w-prose mx-auto sm:mx-0 min-h-[6.5rem] sm:min-h-[5.5rem]">
+              {displayedIntro}
+              {!reduced &&
+                startTyping &&
+                displayedIntro.length < hero.intro.length && (
+                  <span className="animate-pulse">|</span>
+                )}
+            </p>
           </div>
         </div>
       </Container>
