@@ -20,6 +20,7 @@ const navbar: NavbarContent = {
     { label: "Le mécanisme", href: "#mecanisme" },
     { label: "Les chiffres", href: "#chiffres" },
     { label: "À l'échelle mondiale", href: "#wordscale" },
+    { label: "Le modèle", href: "#model" },
     { label: "En pratique", href: "#pratique" },
     { label: "Pour finir", href: "#closing" },
     { label: "À propos", href: "#apropos" },
@@ -128,11 +129,10 @@ const icons: Record<string, React.ReactNode> = {
   ),
   "#mecanisme": (
     <path
-      d="M10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z M10 2.5v2M10 15.5v2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M17.5 10h-2M4.5 10h-2M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.3"
-      strokeLinecap="round"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M8.8 2.5h2.4l.4 2.1c.5.15.95.35 1.4.6l1.75-1.25 1.7 1.7-1.25 1.75c.25.45.45.9.6 1.4l2.1.4v2.4l-2.1.4c-.15.5-.35.95-.6 1.4l1.25 1.75-1.7 1.7-1.75-1.25c-.45.25-.9.45-1.4.6l-.4 2.1H8.8l-.4-2.1c-.5-.15-.95-.35-1.4-.6l-1.75 1.25-1.7-1.7 1.25-1.75c-.25-.45-.45-.9-.6-1.4l-2.1-.4v-2.4l2.1-.4c.15-.5.35-.95.6-1.4L3.55 5.65l1.7-1.7 1.75 1.25c.45-.25.9-.45 1.4-.6l.4-2.1ZM10 7.3a2.7 2.7 0 1 0 0 5.4 2.7 2.7 0 0 0 0-5.4Z"
+      fill="currentColor"
     />
   ),
   "#chiffres": (
@@ -159,6 +159,30 @@ const icons: Record<string, React.ReactNode> = {
         fill="none"
         stroke="currentColor"
         strokeWidth="1.2"
+      />
+    </>
+  ),
+  "#model": (
+    <>
+      <rect
+        x="2.5"
+        y="2.5"
+        width="8"
+        height="8"
+        rx="1.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
+      />
+      <rect
+        x="11.5"
+        y="11.5"
+        width="6"
+        height="6"
+        rx="1.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
       />
     </>
   ),
