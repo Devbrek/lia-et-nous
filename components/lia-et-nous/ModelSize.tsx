@@ -28,7 +28,7 @@ const modelSize: ModelSizeContent = {
 
 export default function ModelSize() {
   return (
-    <section className="relative overflow-hidden bg-zinc-950 text-white py-12 md:py-20 text-center">
+    <section className="relative min-h-dvh flex flex-col justify-center overflow-hidden bg-zinc-950 text-white py-12 md:py-20 text-center">
       <HeroCanvas />
 
       <div
