@@ -240,7 +240,10 @@ function KwhBar({ item, delayMs }: { item: KwhItem; delayMs: number }) {
 
 export default function Mechanism() {
   return (
-    <section id="mecanisme" className="bg-white py-12 md:py-20">
+    <section
+      id="mecanisme"
+      className="min-h-dvh flex flex-col justify-center bg-white py-12 md:py-20"
+    >
       <Container>
         <div className="max-w-xl mb-8 md:mb-12">
           <h2 className="font-heading text-2xl md:text-3xl mb-3">
